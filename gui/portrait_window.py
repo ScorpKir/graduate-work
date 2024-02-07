@@ -7,7 +7,6 @@ from enum import Enum
 
 import numpy as np
 import customtkinter as ctk
-from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -151,16 +150,16 @@ class PortraitWindow(ctk.CTk):
                 color='green',
                 linewidth=3
             )
-            
+
             if i % 10 == 0:
                 # Определение координат и направления стрелки
                 arrow_start = (self.__sol[0, 0], self.__sol[0, 1])
                 arrow_end = (self.__sol[-1, 0], self.__sol[-1, 1])
                 self.__plot.annotate(
-                    "", 
-                    xytext=arrow_start, 
-                    xy=arrow_end, 
-                    arrowprops= {
+                    "",
+                    xytext=arrow_start,
+                    xy=arrow_end,
+                    arrowprops={
                         "arrowstyle": "->"
                     }
                 )
