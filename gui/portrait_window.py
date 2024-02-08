@@ -25,7 +25,7 @@ class WindowParameters(Enum):
     """
 
     # Параметры окна
-    TITLE: str = "TODO: Придумать название"
+    TITLE: str = "Траектория"
 
     # Прочие декоративные параметры
     FONT = ('Colibri', 25)

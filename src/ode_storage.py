@@ -30,5 +30,5 @@ def equation(x0: np.ndarray, t: np.ndarray, **kwargs) -> np.ndarray:
 
     return np.array([
         y,
-        mu * y - x - a1 * x ** 2 - a2 * x * y + a3 * y ** 2
+        mu * y - x - a1 * x ** 2 - a2 * x * y - a3 * y ** 2
     ])
