@@ -179,7 +179,7 @@ class MainWindow(ctk.CTk):
         # Поле ввода a2
         self.__a2_label = ctk.CTkLabel(
             self,
-            text='a1:',
+            text='a2:',
             font=WindowParameters.FONT.value
         )
         self.__a2_label.grid(row=0, column=4)
@@ -194,7 +194,7 @@ class MainWindow(ctk.CTk):
         # Поле ввода a1
         self.__a3_label = ctk.CTkLabel(
             self,
-            text='a1:',
+            text='a3:',
             font=WindowParameters.FONT.value
         )
         self.__a3_label.grid(row=0, column=5)

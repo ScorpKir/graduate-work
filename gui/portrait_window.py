@@ -7,7 +7,6 @@ from enum import Enum
 
 import numpy as np
 import customtkinter as ctk
-from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -26,7 +25,7 @@ class WindowParameters(Enum):
     """
 
     # Параметры окна
-    TITLE: str = "TODO: Придумать название"
+    TITLE: str = "Траектория"
 
     # Прочие декоративные параметры
     FONT = ('Colibri', 25)
@@ -81,15 +80,14 @@ class PortraitWindow(ctk.CTk):
     def __configure_widgets(self) -> None:
         """Конфигурация виджетов"""
         # Отображаем фазовую траекторию на графике
-        with plt.style.context('dark_background'):
-            self.__figure = Figure(figsize=(7, 7), dpi=100)
-            self.__plot = self.__figure.add_subplot()
-            self.__plot.plot(
-                self.__sol[:, 0],
-                self.__sol[:, 1],
-                color='green',
-                linewidth=3
-            )
+        self.__figure = Figure(figsize=(7, 7), dpi=100)
+        self.__plot = self.__figure.add_subplot()
+        self.__plot.plot(
+            self.__sol[:, 0],
+            self.__sol[:, 1],
+            color='green',
+            linewidth=3
+        )
 
         # Создаем виджет и размещаем в окне
         self.canvas = FigureCanvasTkAgg(self.__figure, self)
@@ -153,10 +151,23 @@ class PortraitWindow(ctk.CTk):
                 linewidth=3
             )
 
+            if i % 10 == 0:
+                # Определение координат и направления стрелки
+                arrow_start = (self.__sol[0, 0], self.__sol[0, 1])
+                arrow_end = (self.__sol[-1, 0], self.__sol[-1, 1])
+                self.__plot.annotate(
+                    "",
+                    xytext=arrow_start,
+                    xy=arrow_end,
+                    arrowprops={
+                        "arrowstyle": "->"
+                    }
+                )
+
     def __on_left_mouse_click(self, event):
         """Триггер на нажатие левой кнопки мыши"""
         self.__draw_mode = not self.__draw_mode
 
     def __on_right_mouse_click(self, event):
         """Триггер на нажатие правой кнопки мыши"""
-        self.plot.clear()
+        self.__plot.clear()
