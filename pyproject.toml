@@ -5,6 +5,7 @@ description = "Моя выпускная квалификационная раб
 authors = ["Kirill Petryashev <petryashev.k@gmail.com>"]
 license = "GPLv3"
 readme = "README.md"
+package-mode=false
 
 [tool.poetry.dependencies]
 python = "^3.10"
