@@ -9,9 +9,8 @@ import tkinter as tk
 import numpy as np
 import customtkinter as ctk
 
-from gui.helper import validate_float_input, EquationParameters
-from gui.portrait_window import PortraitWindow
-from src.ode_storage import equation
+from utils.helper import validate_float_input, EquationParameters
+from views.portrait_window import PortraitWindow
 
 
 class WindowParameters(Enum):
@@ -217,9 +216,8 @@ class MainWindow(ctk.CTk):
     def __on_build_button_click(self) -> None:
         """Обработчик кнопки 'построить'"""
         y0 = np.array([self.__x.get(), self.__x_prime.get()])
-        t = np.linspace(0, 1, 100)
         mu = self.__mu.get()
         a1 = self.__a1.get()
         a2 = self.__a2.get()
         a3 = self.__a3.get()
-        PortraitWindow(y0, equation, t, mu=mu, a1=a1, a2=a2, a3=a3)
+        PortraitWindow(y0, mu=mu, a1=a1, a2=a2, a3=a3)

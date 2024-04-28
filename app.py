@@ -2,7 +2,7 @@
 
 __author__ = 'Kirill Petryashev'
 
-from gui.main_window import MainWindow
+from views.main_window import MainWindow
 
 
 if __name__ == '__main__':
