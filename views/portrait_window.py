@@ -11,8 +11,7 @@ from matplotlib.figure import Figure
 from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-from src.rungekutta import rungekutta
-from gui.helper import EquationParameters
+from controllers.phase_controller import get_solution_by_initial_conditions
 
 
 ctk.set_appearance_mode("System")
@@ -21,7 +20,7 @@ ctk.set_default_color_theme("green")
 
 class WindowParameters(Enum):
     """
-    Параметры GUI основного окна
+        Параметры GUI основного окна
     """
 
     # Параметры окна
@@ -33,26 +32,26 @@ class WindowParameters(Enum):
 
 class PortraitWindow(ctk.CTk):
     """
-    Окно, в котором производится отрисовка фазовой траектории
-    дифференциального уравнения с заданными начальными условиями
+        Окно, в котором производится отрисовка фазовой траектории
+        дифференциального уравнения с заданными начальными условиями
     """
 
-    def __init__(self, y0: np.ndarray, func: callable, t: np.ndarray,
-                 fg_color: str | Tuple[str, str] | None = None, **kwargs):
+    def __init__(
+        self,
+        y0: np.ndarray,
+        fg_color: str | Tuple[str, str] | None = None,
+        **kwargs
+    ):
         """
-        Конструктор класса
-
-        :param: y0 Начальные условия для фазовой траектории
-        :param func: Функция, задающая дифференциальное уравнение
-        :param t: Значения переменной t
-        :param kwargs: Остальные коэффициенты дифференциального уравнения
+            :param: y0 Начальные условия для фазовой траектории
+            :param kwargs: Остальные коэффициенты дифференциального уравнения
         """
         # Сегмент численного решения уравнения.
         # Вычисляется по хоту отображения графика.
         self.__sol = None
 
         # Инициализируем поля класса
-        self.__init_params(y0, func, t, kwargs)
+        self.__init_params(y0, kwargs)
 
         # Вызываем конструктор базового класса
         super().__init__(fg_color, **kwargs)
@@ -99,31 +98,26 @@ class PortraitWindow(ctk.CTk):
         self.canvas.draw()
         self.canvas.get_tk_widget().pack()
 
-    def __init_params(self, y0: np.ndarray, equation: callable,
-                      t: np.ndarray, kwargs: dict['str', float]) -> None:
+    def __init_params(
+        self,
+        y0: np.ndarray,
+        kwargs: dict['str', float]
+    ) -> None:
         """
-        Инициализация полей класса
+            Инициализация полей класса
 
-        :param y0: Начальные значения x(0) и x'(0)
-        :param equation: Функция, задающая дифференциальное уравнение
-        :param t: Массив значений переменной t
-        :param kwargs: Коэффициенты уравнения
+            :param y0: Начальные значения x(0) и x'(0)a
+            :param kwargs: Коэффициенты уравнения
         """
+        coefficient_names = {'mu', 'a1', 'a2', 'a3'}
+        self.__coefficients = {
+            key: kwargs.pop(key, 0.0)
+            for key in coefficient_names
+        }
         self.__draw_mode = True
-        self.__t = t
-        self.__mu = kwargs.pop('mu', EquationParameters.DEFAULT_MU_VALUE.value)
-        self.__a1 = kwargs.pop('a1', EquationParameters.DEFAULT_A1_VALUE.value)
-        self.__a2 = kwargs.pop('a2', EquationParameters.DEFAULT_A2_VALUE.value)
-        self.__a3 = kwargs.pop('a3', EquationParameters.DEFAULT_A3_VALUE.value)
-        self.__equation = equation
-        self.__sol = rungekutta(
+        self.__sol = get_solution_by_initial_conditions(
             y0,
-            self.__equation,
-            self.__t,
-            mu=self.__mu,
-            a1=self.__a1,
-            a2=self.__a2,
-            a3=self.__a3
+            **self.__coefficients
         )
 
     def __animate(self, i):
@@ -133,14 +127,9 @@ class PortraitWindow(ctk.CTk):
             y0 = self.__sol[-1]
 
             # Получаем продолжение траектории
-            self.__sol = rungekutta(
+            self.__sol = get_solution_by_initial_conditions(
                 y0,
-                self.__equation,
-                self.__t,
-                mu=self.__mu,
-                a1=self.__a1,
-                a2=self.__a2,
-                a3=self.__a3
+                **self.__coefficients
             )
 
             # Отображаем продолжение траектории
@@ -164,6 +153,11 @@ class PortraitWindow(ctk.CTk):
                     }
                 )
 
+    # Параметр event используется во внутренних вызовах customtkinter
+    # Поэтому для триггеров на нажатие кнопки отключим предупреждение
+    # о неиспользуемых параметрах.
+
+    # pylint: disable=unused-argument
     def __on_left_mouse_click(self, event):
         """Триггер на нажатие левой кнопки мыши"""
         self.__draw_mode = not self.__draw_mode
@@ -171,3 +165,4 @@ class PortraitWindow(ctk.CTk):
     def __on_right_mouse_click(self, event):
         """Триггер на нажатие правой кнопки мыши"""
         self.__plot.clear()
+    # pylint: enable=unused-argument

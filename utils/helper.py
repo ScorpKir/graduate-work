@@ -26,7 +26,7 @@ def validate_float_input(value: str) -> bool:
         :param val: Текстовое значение для валидации
         :return: Логическое значение, обозначающее валидность строки
     """
-    if not value in (None, '', '-'):
+    if value not in (None, '', '-'):
         try:
             float(value)
         except ValueError:
