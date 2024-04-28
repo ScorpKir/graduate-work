@@ -34,14 +34,20 @@ def runge_kutta(y0: np.ndarray, f: callable, t, **kwargs) -> np.ndarray:
         # Вычисляем шаг
         hop = t[i + 1] - t[i]
 
-        # Вычисляем значения k1, k2, k3, k4
-        k1 = f(sol[i], t[i], **kwargs)
-        k2 = f(sol[i] + k1 * hop / 2., t[i] + hop / 2., **kwargs)
-        k3 = f(sol[i] + k2 * hop / 2., t[i] + hop / 2., **kwargs)
-        k4 = f(sol[i] + k3 * hop, t[i] + hop, **kwargs)
+        with np.errstate(over='raise', invalid='raise'):
+            try:
+                # Вычисляем значения k1, k2, k3, k4
+                k1 = f(sol[i], t[i], **kwargs)
+                k2 = f(sol[i] + k1 * hop / 2., t[i] + hop / 2., **kwargs)
+                k3 = f(sol[i] + k2 * hop / 2., t[i] + hop / 2., **kwargs)
+                k4 = f(sol[i] + k3 * hop, t[i] + hop, **kwargs)
+            except FloatingPointError as ex:
+                raise ValueError(
+                    'В процессе вычисления достигнута бесконечность'
+                ) from ex
 
-        # Находим значения y и y' на текущем шаге
-        sol[i + 1] = sol[i] + (hop / 6.) * (k1 + 2 * k2 + 2 * k3 + k4)
+            # Находим значения y и y' на текущем шаге
+            sol[i + 1] = sol[i] + (hop / 6.) * (k1 + 2 * k2 + 2 * k3 + k4)
 
         if sol[i + 1, 0] == np.nan or sol[i + 1, 1] == np.nan:
             return sol[:i + 1]
