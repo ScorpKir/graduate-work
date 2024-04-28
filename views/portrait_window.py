@@ -2,6 +2,7 @@
 
 __author__ = 'Kirill Petryashev'
 
+import tkinter as tk
 from typing import Tuple
 from enum import Enum
 
@@ -114,6 +115,7 @@ class PortraitWindow(ctk.CTk):
             key: kwargs.pop(key, 0.0)
             for key in coefficient_names
         }
+        self.__draw_lock = False
         self.__draw_mode = True
         self.__sol = get_solution_by_initial_conditions(
             y0,
@@ -122,15 +124,27 @@ class PortraitWindow(ctk.CTk):
 
     def __animate(self, i):
         """Метод покадрового отображения анимации графика"""
-        if self.__draw_mode:
+        if self.__draw_mode and not self.__draw_lock:
             # Запоминаем последнюю точку
             y0 = self.__sol[-1]
 
             # Получаем продолжение траектории
-            self.__sol = get_solution_by_initial_conditions(
-                y0,
-                **self.__coefficients
-            )
+            try:
+                self.__sol = get_solution_by_initial_conditions(
+                    y0,
+                    **self.__coefficients
+                )
+            except ValueError:
+                # pylint: disable=attribute-defined-outside-init
+                self.__draw_lock = True
+                # pylint: enable=attribute-defined-outside-init
+                tk.messagebox.showinfo(
+                    'Информация',
+                    (
+                        'Выход за пределы памяти в процессе вычисления.\n\n'
+                        'Продолжение траектории невозможно.'
+                    )
+                )
 
             # Отображаем продолжение траектории
             self.__plot.plot(
