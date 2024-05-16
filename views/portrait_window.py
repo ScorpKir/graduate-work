@@ -121,6 +121,7 @@ class PortraitWindow(ctk.CTk):
             y0,
             **self.__coefficients
         )
+        self.__count_points = len(self.__sol)
 
     def __animate(self, i):
         """Метод покадрового отображения анимации графика"""
@@ -145,6 +146,8 @@ class PortraitWindow(ctk.CTk):
                         'Продолжение траектории невозможно.'
                     )
                 )
+
+            self.__count_points += len(self.__sol)
 
             # Отображаем продолжение траектории
             self.__plot.plot(
@@ -175,8 +178,11 @@ class PortraitWindow(ctk.CTk):
     def __on_left_mouse_click(self, event):
         """Триггер на нажатие левой кнопки мыши"""
         self.__draw_mode = not self.__draw_mode
+        print(f'Количество пройденных точек: {self.__count_points}')
+        print(f'Последняя пройденная точка: {self.__sol[-1]}')
 
     def __on_right_mouse_click(self, event):
         """Триггер на нажатие правой кнопки мыши"""
         self.__plot.clear()
+
     # pylint: enable=unused-argument
