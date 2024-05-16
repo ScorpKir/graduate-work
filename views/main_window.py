@@ -11,6 +11,7 @@ import customtkinter as ctk
 
 from utils.helper import validate_float_input, EquationParameters
 from views.portrait_window import PortraitWindow
+from controllers.phase_controller import find_cycles_in_phase_field
 
 
 class WindowParameters(Enum):
@@ -25,7 +26,7 @@ class WindowParameters(Enum):
 
     # Параметры сетки
     ROWS_COUNT: int = 3
-    COLUMNS_COUNT: int = 7
+    COLUMNS_COUNT: int = 6
     WEIGHT: int = 1
 
     # Прочие декоративные параметры
@@ -206,18 +207,43 @@ class MainWindow(ctk.CTk):
         self.__a3_entry.grid(row=1, column=5)
 
         # Кнопка построения портрета
-        self.__button = ctk.CTkButton(
+        self.__draw_button = ctk.CTkButton(
             self,
             text='Построить',
             command=self.__on_build_button_click
         )
-        self.__button.grid(row=1, column=6)
+        self.__draw_button.grid(row=2, column=2)
+
+        # Кнопка поиска циклов в фазовом поле
+        self.__cycle_button = ctk.CTkButton(
+            self,
+            text='Поиск циклов',
+            command=self.__on_find_button_click
+        )
+        self.__cycle_button.grid(row=2, column=3)
 
     def __on_build_button_click(self) -> None:
-        """Обработчик кнопки 'построить'"""
+        """
+            Обработчик кнопки 'построить'
+        """
         y0 = np.array([self.__x.get(), self.__x_prime.get()])
-        mu = self.__mu.get()
-        a1 = self.__a1.get()
-        a2 = self.__a2.get()
-        a3 = self.__a3.get()
-        PortraitWindow(y0, mu=mu, a1=a1, a2=a2, a3=a3)
+        PortraitWindow(
+            y0, 
+            mu=self.__mu.get(),
+            a1=self.__a1.get(),
+            a2=self.__a2.get(),
+            a3=self.__a3.get()
+        )
+
+    def __on_find_button_click(self) -> None:
+        """
+            Обработчик кнопки 'поиск'
+        """
+        y0 = np.array([self.__x.get(), self.__x_prime.get()])
+        find_cycles_in_phase_field(
+            y0,
+            mu=self.__mu.get(),
+            a1=self.__a1.get(),
+            a2=self.__a2.get(),
+            a3=self.__a3.get()
+        )
