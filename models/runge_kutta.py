@@ -64,22 +64,6 @@ def runge_kutta(
     return sol
 
 
-def __calc_tolerance(difference: np.array, differences: np.array) -> float:
-    """
-        Рассчитать погрешность для функции, проверяющей траекторию на цикл
-
-        :param difference: Покоординатная разница между текущей и предыдущей
-            точки в траектории.
-        :param differences: Массив разниц, вычисленных в течение траектории.
-
-        :return: Текущее значение погрешности.
-    """
-    # Находим текущее значение погрешности
-    # Исходя из среднего значения разницы по всем итерациям
-    differences = np.append(differences, abs(difference[1]))
-    return np.mean(differences)
-
-
 def __is_vertical_axe_intersected(
     current_point: np.array,
     previous_point: np.array,
@@ -145,8 +129,9 @@ def is_cycle(
     # Счётчик пересечений вертикальной оси
     count_x_intersections = 0
 
-    # Массив различий в вертикальных координатах
-    differences = np.array([])
+    # Переменные для вычисления погрешностей
+    sum_differences = 0.0
+    count_hops = 0
 
     # Основной цикл Рунге-Кутты
     while True:
@@ -176,11 +161,13 @@ def is_cycle(
 
         # Находим текущее значение погрешности
         # Исходя из среднего значения разницы по всем итерациям
-        tolerance = __calc_tolerance(difference, differences)
+        sum_differences += abs(difference[1])
+        count_hops += 1
+        tolerance = sum_differences / count_hops
 
         # Находим значения y и y' на текущем шаге
         current_point += difference
-        points = np.append(points, np.array([current_point]))
+        points = np.vstack((points, np.array([current_point])))
 
         # Если мы пересекаем вертикальную ось - регистрируем это.
         if __is_vertical_axe_intersected(
@@ -191,9 +178,9 @@ def is_cycle(
             count_x_intersections += 1
 
         # Формируем условия для положительного выхода из цикла
-        # 1) Вертикальная ось была пересечена 
+        # 1) Вертикальная ось была пересечена
         positive_conditions = [
-            count_x_intersections == 2,
+            count_x_intersections >= 1,
             abs(start_point[0] - current_point[0]) <= tolerance,
             abs(start_point[1] - current_point[1]) <= tolerance
         ]
@@ -206,10 +193,13 @@ def is_cycle(
                 'trajectory': points
             }
 
-        # Если мы пересекли вертикальную ось более трех раз
-        # и до сих пор не вышли из функции - это не цикл 
-        #
-        if count_x_intersections >= 3:
+        # Если мы пересекли вертикальную ось два или более раз
+        # Находимся далеко от неё и до сих пор не вышли из цикла - выходим
+        negative_conditions = (
+            count_x_intersections >= 2,
+            current_point[0] - start_point[0]
+        )
+        if all(negative_conditions):
             return {
                 'result': False,
                 'trajectory': points

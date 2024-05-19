@@ -9,6 +9,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from views.frames.float_entry_frame import EntryFrame
+from controllers.phase_controller import find_cycles_in_phase_field
 
 
 class CycleFinderFrame(ctk.CTkFrame):
@@ -25,6 +26,9 @@ class CycleFinderFrame(ctk.CTkFrame):
 
         # Настройка виджетов
         self.__widgets_configure()
+
+        # Настройка параметров уравнения
+        self.__configure_equation()
 
     def __configure_grid(self):
         """Настройка сетки"""
@@ -106,6 +110,43 @@ class CycleFinderFrame(ctk.CTkFrame):
             pady=10
         )
 
+    def __configure_equation(self) -> None:
+        """Инициализируем все параметры, свазянные с уравнением"""
+        # Коэффициенты уравнения, полученные из полей ввода
+        self.__coefficients = {
+            'mu': self.__mu.get(),
+            'a1': self.__a1.get(),
+            'a2': self.__a2.get(),
+            'a3': self.__a3.get(),
+        }
+
     def __on_search_click(self):
         """Триггер на нажатие кнопки поиска циклов"""
-        pass
+        # Получаем траектории и начальные условия, где были обнаружены циклы
+        search_results = find_cycles_in_phase_field(
+            self.__x.get(),
+            self.__x_dot_min.get(),
+            self.__x_dot_max.get(),
+            **self.__coefficients
+        )
+
+        text_fragments = [
+            'Начальные условия, порождающие цикл: ',
+            ''
+        ]
+
+        for result in search_results:
+            start_point = result['start_point']
+            text_fragments.append(f'({start_point[0]}, {start_point[1]})')
+            sol = result['trajectory']
+            self.__plot.plot(
+                sol[:, 0],
+                sol[:, 1],
+                color='green',
+                linewidth=3
+            )
+
+        self.__canvas.draw()
+
+        points_to_show = '\n'.join(text_fragments)
+        self.__result_textbox.insert(ctk.END, points_to_show)
