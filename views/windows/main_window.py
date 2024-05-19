@@ -8,6 +8,7 @@ from typing import Tuple
 import customtkinter as ctk
 
 from views.frames.phase_trajectory_frame import PhaseTrajectoryFrame
+from views.frames.cycle_finder_frame import CycleFinderFrame
 
 
 class WindowParameters(Enum):
@@ -60,4 +61,9 @@ class MainWindow(ctk.CTk):
         self.__phase_frame = PhaseTrajectoryFrame(
             master=self.__tabview.tab(self.__first_tab)
         )
+        self.__cycle_frame = CycleFinderFrame(
+            master=self.__tabview.tab(self.__second_tab)
+        )
+
         self.__phase_frame.pack(fill='both', side='top', expand=True)
+        self.__cycle_frame.pack(fill='both', side='top', expand=True)

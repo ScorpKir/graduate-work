@@ -132,7 +132,7 @@ class PhaseTrajectoryFrame(ctk.CTkFrame):
         )
 
         # Настраиваем анимацию графика
-        FuncAnimation(
+        self.__animation = FuncAnimation(
             self.__figure,
             self.__animate,
             interval=100
