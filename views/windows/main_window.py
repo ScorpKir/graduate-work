@@ -17,8 +17,8 @@ class WindowParameters(Enum):
 
     # Параметры окна
     TITLE: str = "Дипломный проект"
-    LENGTH: int = 1400
-    HEIGHT: int = 400
+    LENGTH: int = 1600
+    HEIGHT: int = 900
 
 
 class MainWindow(ctk.CTk):
