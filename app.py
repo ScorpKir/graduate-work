@@ -1,8 +1,6 @@
 """Точка входа приложения"""
 
-__author__ = 'Kirill Petryashev'
-
-from views.main_window import MainWindow
+from views.windows.main_window import MainWindow
 
 
 if __name__ == '__main__':
