@@ -132,11 +132,13 @@ class PhaseTrajectoryFrame(ctk.CTkFrame):
         )
 
         # Настраиваем анимацию графика
+        # pylint: disable=unused-private-member
         self.__animation = FuncAnimation(
             self.__figure,
             self.__animate,
             interval=100
         )
+        # pylint: enable=unused-private-member
 
     def __configure_equation(self) -> None:
         """Инициализируем все параметры, свазянные с уравнением"""

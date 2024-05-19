@@ -13,7 +13,7 @@ from models.runge_kutta import runge_kutta, is_cycle
 
 
 # Константы для поиска циклов
-STEP: Final = 1e-3
+STEP: Final = 0.004
 
 
 def get_solution_by_initial_conditions(x0: np.ndarray, **kwargs) -> np.ndarray:
