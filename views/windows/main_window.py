@@ -33,6 +33,9 @@ class MainWindow(ctk.CTk):
         # Конфигурируем окно
         self.__configure_window()
 
+        # Задаем тему
+        ctk.set_default_color_theme("green")
+
         # Задаем виджеты
         self.__configure_widgets()
 
