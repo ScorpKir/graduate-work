@@ -46,7 +46,7 @@ class EntryFrame(ctk.CTkFrame):
             text=self.__value_name,
             font=self.FONT
         )
-        self.__label.pack(side='top', padx=5, pady=5)
+        self.__label.pack(expand=True)
 
         # Создаём само поле ввода.
         self.__entry = ctk.CTkEntry(
@@ -55,7 +55,7 @@ class EntryFrame(ctk.CTkFrame):
             validate='key',
             validatecommand=self.__validate_command
         )
-        self.__entry.pack(side='bottom', padx=5, pady=5)
+        self.__entry.pack(expand=True)
 
     def __validate_float_input(self, value: str) -> bool:
         """

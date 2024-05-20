@@ -44,33 +44,56 @@ class PhaseTrajectoryFrame(ctk.CTkFrame):
 
     def __configure_grid(self) -> None:
         """Настройка сетки"""
-        self.grid_rowconfigure((0, 5), weight=0)
-        self.grid_rowconfigure((1, 2, 3, 4), weight=1)
+        self.grid_rowconfigure((0, 7), weight=0)
+        self.grid_rowconfigure((1, 2, 3, 4, 5, 6), weight=1)
         self.grid_columnconfigure((0, 7), weight=0)
         self.grid_columnconfigure((1, 2, 3, 4, 5, 6), weight=1)
 
     def __widgets_configure(self) -> None:
         """Настройка виджетов"""
         # Позиционируем виджет графика.
-        self.__figure = Figure(figsize=(5, 4), dpi=100)
+        self.__figure = Figure(dpi=100, facecolor='#2b2b2b')
         self.__plot = self.__figure.add_subplot()
+        self.__plot.tick_params(axis='x', colors='white')
+        self.__plot.tick_params(axis='y', colors='white')
+        self.__plot.set_xlabel('x')
+        self.__plot.set_ylabel("x'")
+        self.__plot.title.set_color('white')
+        self.__plot.xaxis.label.set_color('white')
+        self.__plot.yaxis.label.set_color('white')
         self.__canvas = FigureCanvasTkAgg(figure=self.__figure, master=self)
         self.__canvas.get_tk_widget().grid(
             row=1,
             column=1,
-            rowspan=4,
+            rowspan=6,
             columnspan=3,
             sticky='nsew'
         )
         self.__canvas.draw()
 
+        # Позиционирование подсказывающих надписей
+        self.__init_conditios_label = ctk.CTkLabel(
+            self,
+            text='Начальные условия',
+            font=self.FONT
+        )
+        self.__init_conditios_label.grid(row=1, column=4, columnspan=3)
+
+        # Позиционирование подсказывающих надписей
+        self.__init_conditios_label = ctk.CTkLabel(
+            self,
+            text='Коэффициенты',
+            font=self.FONT
+        )
+        self.__init_conditios_label.grid(row=3, column=4, columnspan=3)
+
         # Позиционирую виджеты ввода значений
         self.__x_entry = EntryFrame('x(0)', value=0.0, master=self)
-        self.__x_entry.grid(row=1, column=4, sticky='nsew', padx=10, pady=10)
+        self.__x_entry.grid(row=2, column=4, sticky='nsew', padx=10, pady=10)
 
         self.__x_derivative = EntryFrame("x'(0)", value=0.01, master=self)
         self.__x_derivative.grid(
-            row=1,
+            row=2,
             column=5,
             sticky='nsew',
             padx=10,
@@ -78,16 +101,16 @@ class PhaseTrajectoryFrame(ctk.CTkFrame):
         )
 
         self.__mu = EntryFrame('mu', value=0.1, master=self)
-        self.__mu.grid(row=2, column=4, sticky='nsew', padx=10, pady=10)
+        self.__mu.grid(row=4, column=4, sticky='nsew', padx=10, pady=10)
 
         self.__a1 = EntryFrame('a1', value=1.0, master=self)
-        self.__a1.grid(row=3, column=4, sticky='nsew', padx=10, pady=10)
+        self.__a1.grid(row=5, column=4, sticky='nsew', padx=10, pady=10)
 
         self.__a2 = EntryFrame('a2', value=-1.0, master=self)
-        self.__a2.grid(row=3, column=5, sticky='nsew', padx=10, pady=10)
+        self.__a2.grid(row=5, column=5, sticky='nsew', padx=10, pady=10)
 
         self.__a3 = EntryFrame('a3', value=1.0, master=self)
-        self.__a3.grid(row=3, column=6, sticky='nsew', padx=10, pady=10)
+        self.__a3.grid(row=5, column=6, sticky='nsew', padx=10, pady=10)
 
         self.__draw_button = ctk.CTkButton(
             master=self,
@@ -96,7 +119,7 @@ class PhaseTrajectoryFrame(ctk.CTkFrame):
             command=self.__on_start_click
         )
         self.__draw_button.grid(
-            row=4,
+            row=6,
             column=4,
             sticky='nsew',
             padx=10,
@@ -105,12 +128,12 @@ class PhaseTrajectoryFrame(ctk.CTkFrame):
 
         self.__stop_button = ctk.CTkButton(
             master=self,
-            text='Стоп',
+            text='Пауза / Продолжить',
             font=self.FONT,
             command=self.__on_pause_click
         )
         self.__stop_button.grid(
-            row=4,
+            row=6,
             column=5,
             sticky='nsew',
             padx=10,
@@ -124,7 +147,7 @@ class PhaseTrajectoryFrame(ctk.CTkFrame):
             command=self.__on_clear_click
         )
         self.__clear_button.grid(
-            row=4,
+            row=6,
             column=6,
             sticky='nsew',
             padx=10,
@@ -184,34 +207,50 @@ class PhaseTrajectoryFrame(ctk.CTkFrame):
                     )
                 )
 
+            x = self.__sol[:, 0]
+            y = self.__sol[:, 1]
+
             # Отображаем продолжение траектории
             self.__plot.plot(
-                self.__sol[:, 0],
-                self.__sol[:, 1],
+                x,
+                y,
                 color='green',
                 linewidth=3
             )
-
-            if i % 10 == 0:
-                # Определение координат и направления стрелки
-                arrow_start = (self.__sol[0, 0], self.__sol[0, 1])
-                arrow_end = (self.__sol[-1, 0], self.__sol[-1, 1])
-                self.__plot.annotate(
-                    "",
-                    xytext=arrow_start,
-                    xy=arrow_end,
-                    arrowprops={
-                        "arrowstyle": "->"
-                    }
-                )
+            
+            # # Строим стрелочки для фазовой траектории
+            # if i % 10 == 0:
+            #     x_range = x.max() - x.min()
+            #     y_range = y.max() - y.min()
+            #     for index_ in np.linspace(
+            #         x.min(),
+            #         x.max(),
+            #         3
+            #     ).astype(np.int32)[1::2]:
+            #         direction = np.array([
+            #             (x[index_ + 5] - x[index_]),
+            #             (y[index_ + 5] - y[index_])
+            #         ])
+            #         direction = direction / (
+            #             np.sqrt(np.sum(np.power(direction, 2)))
+            #         ) * 0.05
+            #         direction[0] /= x_range
+            #         direction[1] /= y_range
+            #         self.__plot.quiver(
+            #             x[index_],
+            #             y[index_],
+            #             direction[0],
+            #             direction[1]
+            #         )
 
     def __on_start_click(self):
         """Триггер на нажатие кнопки старта"""
+        self.__configure_equation()
         self.__draw_mode = True
 
     def __on_pause_click(self):
         """Триггер на нажатие кнопки паузы"""
-        self.__draw_mode = False
+        self.__draw_mode = not self.__draw_mode
 
     def __on_clear_click(self):
         """Триггер на нажатие кнопки очистки"""

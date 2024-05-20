@@ -32,33 +32,55 @@ class CycleFinderFrame(ctk.CTkFrame):
 
     def __configure_grid(self):
         """Настройка сетки"""
-        self.grid_rowconfigure((0, 5), weight=0)
-        self.grid_rowconfigure((1, 2, 3, 4), weight=1)
+        self.grid_rowconfigure((0, 7), weight=0)
+        self.grid_rowconfigure((1, 2, 3, 4, 5, 6), weight=1)
         self.grid_columnconfigure((0, 7), weight=0)
         self.grid_columnconfigure((1, 2, 3, 4, 5, 6), weight=1)
 
     def __widgets_configure(self):
         """Настрока виджетов"""
         # Позиционирование графика
-        self.__figure = Figure(figsize=(5, 4), dpi=100)
+        self.__figure = Figure(dpi=100, facecolor='#2b2b2b')
         self.__plot = self.__figure.add_subplot()
+        self.__plot.tick_params(axis='x', colors='white')
+        self.__plot.tick_params(axis='y', colors='white')
+        self.__plot.set_xlabel('x')
+        self.__plot.set_ylabel("x'")
+        self.__plot.xaxis.label.set_color('white')
+        self.__plot.yaxis.label.set_color('white')
         self.__canvas = FigureCanvasTkAgg(figure=self.__figure, master=self)
         self.__canvas.get_tk_widget().grid(
             row=1,
             column=1,
-            rowspan=4,
+            rowspan=6,
             columnspan=3,
             sticky='nsew'
         )
         self.__canvas.draw()
 
+        # Позиционирование подсказывающих надписей
+        self.__init_conditios_label = ctk.CTkLabel(
+            self,
+            text='Начальные условия',
+            font=self.FONT
+        )
+        self.__init_conditios_label.grid(row=1, column=4, columnspan=3)
+
+        # Позиционирование подсказывающих надписей
+        self.__init_conditios_label = ctk.CTkLabel(
+            self,
+            text='Коэффициенты',
+            font=self.FONT
+        )
+        self.__init_conditios_label.grid(row=3, column=4, columnspan=3)
+
         # Позиционирование виджетов ввода значений
         self.__x = EntryFrame('x(0)', value=0.0, master=self)
-        self.__x.grid(row=1, column=4, sticky='nsew', padx=10, pady=10)
+        self.__x.grid(row=2, column=4, sticky='nsew', padx=10, pady=10)
 
         self.__x_dot_min = EntryFrame("x'(0) min", value=0.01, master=self)
         self.__x_dot_min.grid(
-            row=1,
+            row=2,
             column=5,
             sticky='nsew',
             padx=10,
@@ -67,7 +89,7 @@ class CycleFinderFrame(ctk.CTkFrame):
 
         self.__x_dot_max = EntryFrame("x'(0) max", value=0.01, master=self)
         self.__x_dot_max.grid(
-            row=1,
+            row=2,
             column=6,
             sticky='nsew',
             padx=10,
@@ -75,20 +97,20 @@ class CycleFinderFrame(ctk.CTkFrame):
         )
 
         self.__mu = EntryFrame('mu', value=0.1, master=self)
-        self.__mu.grid(row=2, column=4, sticky='nsew', padx=10, pady=10)
+        self.__mu.grid(row=4, column=4, sticky='nsew', padx=10, pady=10)
 
         self.__a1 = EntryFrame('a1', value=1.0, master=self)
-        self.__a1.grid(row=3, column=4, sticky='nsew', padx=10, pady=10)
+        self.__a1.grid(row=5, column=4, sticky='nsew', padx=10, pady=10)
 
         self.__a2 = EntryFrame('a2', value=-1.0, master=self)
-        self.__a2.grid(row=3, column=5, sticky='nsew', padx=10, pady=10)
+        self.__a2.grid(row=5, column=5, sticky='nsew', padx=10, pady=10)
 
         self.__a3 = EntryFrame('a3', value=1.0, master=self)
-        self.__a3.grid(row=3, column=6, sticky='nsew', padx=10, pady=10)
+        self.__a3.grid(row=5, column=6, sticky='nsew', padx=10, pady=10)
 
         self.__result_textbox = ctk.CTkTextbox(self)
         self.__result_textbox.grid(
-            row=4,
+            row=6,
             column=4,
             columnspan=2,
             sticky='nsew',
@@ -103,7 +125,7 @@ class CycleFinderFrame(ctk.CTkFrame):
             command=self.__on_search_click
         )
         self.__search_button.grid(
-            row=4,
+            row=6,
             column=6,
             sticky='nsew',
             padx=10,
