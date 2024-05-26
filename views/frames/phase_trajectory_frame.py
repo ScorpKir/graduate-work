@@ -183,6 +183,7 @@ class PhaseTrajectoryFrame(ctk.CTkFrame):
             **self.__coefficients
         )
 
+    # pylint: disable=unused-argument
     def __animate(self, i):
         """Метод покадрового отображения анимации графика"""
         if self.__draw_mode and not self.__draw_lock:
@@ -217,7 +218,7 @@ class PhaseTrajectoryFrame(ctk.CTkFrame):
                 color='green',
                 linewidth=3
             )
-            
+
             # # Строим стрелочки для фазовой траектории
             # if i % 10 == 0:
             #     x_range = x.max() - x.min()
@@ -242,6 +243,7 @@ class PhaseTrajectoryFrame(ctk.CTkFrame):
             #             direction[0],
             #             direction[1]
             #         )
+    # pylint: enable=unused-argument
 
     def __on_start_click(self):
         """Триггер на нажатие кнопки старта"""

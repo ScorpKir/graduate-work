@@ -144,7 +144,9 @@ class CycleFinderFrame(ctk.CTkFrame):
 
     def __on_search_click(self):
         """Триггер на нажатие кнопки поиска циклов"""
+        self.__plot.clear()
         # Получаем траектории и начальные условия, где были обнаружены циклы
+        self.__configure_equation()
         search_results = find_cycles_in_phase_field(
             self.__x.get(),
             self.__x_dot_min.get(),
@@ -152,23 +154,28 @@ class CycleFinderFrame(ctk.CTkFrame):
             **self.__coefficients
         )
 
-        text_fragments = [
-            'Начальные условия, порождающие цикл: ',
-            ''
-        ]
+        if len(search_results) != 0:
+            text_fragments = [
+                'Начальные условия, порождающие цикл: ',
+                ''
+            ]
 
-        for result in search_results:
-            start_point = result['start_point']
-            text_fragments.append(f'({start_point[0]}, {start_point[1]})')
-            sol = result['trajectory']
-            self.__plot.plot(
-                sol[:, 0],
-                sol[:, 1],
-                color='green',
-                linewidth=3
-            )
+            for result in search_results:
+                start_point = result['start_point']
+                text_fragments.append(f'({start_point[0]}, {start_point[1]})')
+                sol = result['trajectory']
+                self.__plot.plot(
+                    sol[:, 0],
+                    sol[:, 1],
+                    color='green',
+                    linewidth=3
+                )
 
-        self.__canvas.draw()
-
-        points_to_show = '\n'.join(text_fragments)
-        self.__result_textbox.insert(ctk.END, points_to_show)
+            self.__canvas.draw()
+            
+            points_to_show = '\n'.join(text_fragments)
+            self.__result_textbox.delete(1.0, ctk.END)
+            self.__result_textbox.insert(ctk.END, points_to_show)
+        else:
+            self.__result_textbox.delete(1.0, ctk.END)
+            self.__result_textbox.insert(ctk.END, 'Циклы не найдены')
