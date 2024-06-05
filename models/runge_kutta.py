@@ -51,10 +51,8 @@ def runge_kutta(
                 k2 = ode(sol[i] + k1 * hop / 2., time_[i] + hop / 2., **kwargs)
                 k3 = ode(sol[i] + k2 * hop / 2., time_[i] + hop / 2., **kwargs)
                 k4 = ode(sol[i] + k3 * hop, time_[i] + hop, **kwargs)
-            except FloatingPointError as ex:
-                raise ValueError(
-                    'В процессе вычисления достигнута бесконечность'
-                ) from ex
+            except FloatingPointError:
+                return sol
 
             # Находим значения y и y' на текущем шаге
             sol[i + 1] = sol[i] + (hop / 6.) * (k1 + 2 * k2 + 2 * k3 + k4)

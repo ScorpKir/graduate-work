@@ -6,7 +6,6 @@
 """
 
 from typing import Final
-from concurrent.futures import ProcessPoolExecutor, as_completed
 
 import numpy as np
 from models.ode_storage import equation
@@ -31,7 +30,7 @@ def get_solution_by_initial_conditions(x0: np.ndarray, **kwargs) -> np.ndarray:
     return runge_kutta(
         x0,
         equation,
-        np.linspace(0, 1, 100),
+        np.linspace(0, 4, 100),
         **kwargs
     )
 
