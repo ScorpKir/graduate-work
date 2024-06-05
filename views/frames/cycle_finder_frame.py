@@ -3,13 +3,18 @@
 """
 
 from typing import Final
+from tkinter import messagebox
 
+import numpy as np
 import customtkinter as ctk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from views.frames.float_entry_frame import EntryFrame
-from controllers.phase_controller import find_cycles_in_phase_field
+from controllers.phase_controller import (
+    find_cycles_in_phase_field,
+    get_solution_by_initial_conditions
+)
 
 
 class CycleFinderFrame(ctk.CTkFrame):
@@ -17,6 +22,9 @@ class CycleFinderFrame(ctk.CTkFrame):
 
     # Обозначаем шрифт по умолчанию.
     FONT: Final = ('Colibri', 25)
+
+    # Обозначаем шаг для дополнительных траекторий
+    HOP: Final = 0.004
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -142,8 +150,35 @@ class CycleFinderFrame(ctk.CTkFrame):
             'a3': self.__a3.get(),
         }
 
+    # def __draw_arrow(self, sol: np.array, color: str = 'red') -> None:
+    #     """Рисует стрелку направления для заданной траектории."""
+    #     first_point = np.array([sol[len(sol) // 2, 0], sol[len(sol) // 2, 1]])
+    #     second_point = np.array(
+    #         [sol[len(sol) // 2 + 1, 0], sol[len(sol) // 2 + 1, 1]]
+    #     )
+    #     delta = second_point - first_point
+    #     self.__plot.arrow(
+    #         first_point[0],
+    #         first_point[1],
+    #         delta[0],
+    #         delta[1],
+    #         shape='full',
+    #         lw=0,
+    #         color=color,
+    #         length_includes_head=True,
+    #         head_width=delta[0]
+    #     )
+
     def __on_search_click(self):
         """Триггер на нажатие кнопки поиска циклов"""
+        if self.__x_dot_min.get() > self.__x_dot_max.get():
+            messagebox.showerror(
+                'Ошибка!',
+                'Минимальное значение диопазона '
+                'не может быть больше максимального!'
+            )
+            return
+
         self.__plot.clear()
         # Получаем траектории и начальные условия, где были обнаружены циклы
         self.__configure_equation()
@@ -155,6 +190,14 @@ class CycleFinderFrame(ctk.CTkFrame):
         )
 
         if len(search_results) != 0:
+            self.__plot.plot(
+                [self.__x.get(), self.__x.get()],
+                [
+                    self.__x_dot_min.get() - 20 * self.HOP, 
+                    self.__x_dot_max.get() + 20 * self.HOP
+                ],
+                'k--'
+            )
             text_fragments = [
                 'Начальные условия, порождающие цикл: ',
                 ''
@@ -168,14 +211,55 @@ class CycleFinderFrame(ctk.CTkFrame):
                     sol[:, 0],
                     sol[:, 1],
                     color='green',
-                    linewidth=3
+                    linewidth=1
                 )
+                # self.__draw_arrow(sol, 'black')
+
+            another_points = [
+                np.array(
+                    [self.__x.get(), self.__x_dot_min.get() - 2 * self.HOP]
+                ),
+                np.array(
+                    [self.__x.get(), self.__x_dot_min.get() - 4 * self.HOP]
+                ),
+                np.array(
+                    [self.__x.get(), self.__x_dot_min.get() - 8 * self.HOP]
+                ),
+                np.array(
+                    [self.__x.get(), self.__x_dot_max.get() + 2 * self.HOP]
+                ),
+                np.array(
+                    [self.__x.get(), self.__x_dot_max.get() + 4 * self.HOP]
+                ),
+                np.array(
+                    [self.__x.get(), self.__x_dot_max.get() + 8 * self.HOP]
+                ),
+            ]
+
+            for point_ in another_points:
+                self.__plot.plot(
+                    point_[0],
+                    point_[1],
+                    'ko'
+                )
+                additional_sol = get_solution_by_initial_conditions(
+                    point_,
+                    **self.__coefficients
+                )
+                self.__plot.plot(
+                    additional_sol[:, 0],
+                    additional_sol[:, 1],
+                    color='red',
+                    linewidth=0.5
+                )
+                # self.__draw_arrow(additional_sol)
 
             self.__canvas.draw()
-            
+
             points_to_show = '\n'.join(text_fragments)
             self.__result_textbox.delete(1.0, ctk.END)
             self.__result_textbox.insert(ctk.END, points_to_show)
+
         else:
             self.__result_textbox.delete(1.0, ctk.END)
             self.__result_textbox.insert(ctk.END, 'Циклы не найдены')

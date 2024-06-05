@@ -4,10 +4,10 @@ __author__ = 'Kirill Petryashev'
 
 from enum import Enum
 from typing import Tuple
+from tkinter import messagebox
 
 import customtkinter as ctk
 
-from views.frames.phase_trajectory_frame import PhaseTrajectoryFrame
 from views.frames.cycle_finder_frame import CycleFinderFrame
 
 
@@ -52,21 +52,6 @@ class MainWindow(ctk.CTk):
 
     def __configure_widgets(self) -> None:
         """Конфигурация виджетов"""
-        # Создаём вкладки
-        self.__tabview = ctk.CTkTabview(self)
-        self.__first_tab = "Построение фазовой траектории"
-        self.__tabview.add(self.__first_tab)
-        self.__second_tab = "Поиск циклов в фазовом поле"
-        self.__tabview.add(self.__second_tab)
-        self.__tabview.set(self.__first_tab)
-        self.__tabview.pack(fill='both', side='top', expand=True)
-
-        self.__phase_frame = PhaseTrajectoryFrame(
-            master=self.__tabview.tab(self.__first_tab)
-        )
-        self.__cycle_frame = CycleFinderFrame(
-            master=self.__tabview.tab(self.__second_tab)
-        )
-
-        self.__phase_frame.pack(fill='both', side='top', expand=True)
+        # Инициализируем фрейм
+        self.__cycle_frame = CycleFinderFrame(master=self)
         self.__cycle_frame.pack(fill='both', side='top', expand=True)
